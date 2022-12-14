@@ -614,6 +614,56 @@ class PipelineOpsTest(test_utils.TfxTest, parameterized.TestCase):
       self.assertEqual(status_lib.Code.DEADLINE_EXCEEDED,
                        exception_context.exception.code)
 
+  def test_backfill_node(self):
+    pipeline = test_async_pipeline.create_pipeline()
+
+    trainer_node = None
+    for node in pipeline.nodes:
+      if node.pipeline_node.node_info.id == 'my_trainer':
+        trainer_node = node.pipeline_node
+    assert trainer_node is not None, 'Could not find trainer node in pipeline'
+
+    pipeline_uid = task_lib.PipelineUid.from_pipeline(pipeline)
+    node_uid = task_lib.NodeUid(node_id='my_trainer', pipeline_uid=pipeline_uid)
+    with self._mlmd_connection as m:
+      pipeline_state = pstate.PipelineState.new(m, pipeline)
+
+      # Check - can't backfill a RUNNING node
+      with pstate.PipelineState.load(m, pipeline_uid) as pipeline_state:
+        with pipeline_state.node_state_update_context(node_uid) as node_state:
+          node_state.update(pstate.NodeState.RUNNING)
+
+      with self.assertRaisesRegex(status_lib.StatusNotOkError,
+                                  'Can only backfill nodes in a stopped state'):
+        pipeline_ops.initiate_node_backfill(m, node_uid)
+
+      # Check - can't backfill a node with active executions, even if it's
+      # STOPPED
+      with pstate.PipelineState.load(m, pipeline_uid) as pipeline_state:
+        with pipeline_state.node_state_update_context(node_uid) as node_state:
+          node_state.update(pstate.NodeState.STOPPED)
+
+      contexts = context_lib.prepare_contexts(m, trainer_node.contexts)
+      execution = execution_publish_utils.register_execution(
+          m, trainer_node.node_info.type, contexts)
+
+      with self.assertRaisesRegex(
+          status_lib.StatusNotOkError,
+          'Can only backfill nodes which have no ongoing executions'):
+        pipeline_ops.initiate_node_backfill(m, node_uid)
+
+      # Check - can backfill STOPPED node with no active executions
+      with mlmd_state.mlmd_execution_atomic_op(
+          mlmd_handle=m, execution_id=execution.id) as execution:
+        execution.last_known_state = metadata_store_pb2.Execution.COMPLETE
+
+      pipeline_ops.initiate_node_backfill(m, node_uid)
+
+      with pstate.PipelineState.load(m, pipeline_uid) as pipeline_state:
+        node_state = pipeline_state.get_node_state(node_uid)
+        self.assertEqual(pstate.NodeState.STARTING, node_state.state)
+        self.assertNotEqual('', node_state.backfill_token)
+
   def test_stop_node_wait_for_inactivation(self):
     pipeline = test_async_pipeline.create_pipeline()
     pipeline_uid = task_lib.PipelineUid.from_pipeline(pipeline)

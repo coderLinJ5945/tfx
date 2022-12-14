@@ -300,7 +300,7 @@ def run_generator(mlmd_connection_manager: mlmd_cm.MLMDConnectionManager,
         with pipeline_state:
           with pipeline_state.node_state_update_context(
               task.node_uid) as node_state:
-            node_state.update(task.state, task.status)
+            node_state.update(task.state, task.status, task.backfill_token)
   if ignore_update_node_state_tasks:
     tasks = [
         t for t in tasks if not isinstance(t, task_lib.UpdateNodeStateTask)

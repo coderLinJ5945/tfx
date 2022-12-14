@@ -82,6 +82,7 @@ class NodeStateTest(test_utils.TfxTest):
     self.assertEqual([
         pstate.StateRecord(
             state=pstate.NodeState.STARTED,
+            backfill_token='',
             status_code=None,
             update_time=mock_time.time.return_value)
     ], node_state.state_history)
@@ -90,10 +91,12 @@ class NodeStateTest(test_utils.TfxTest):
     self.assertEqual([
         pstate.StateRecord(
             state=pstate.NodeState.STARTED,
+            backfill_token='',
             status_code=None,
             update_time=mock_time.time.return_value),
         pstate.StateRecord(
             state=pstate.NodeState.STOPPING,
+            backfill_token='',
             status_code=status_lib.Code.CANCELLED,
             update_time=mock_time.time.return_value)
     ], node_state.state_history)
@@ -468,6 +471,7 @@ class PipelineStateTest(test_utils.TfxTest):
                   state_history=[
                       pstate.StateRecord(
                           state=pstate.NodeState.STARTED,
+                          backfill_token='',
                           status_code=None,
                           update_time=mock_time.time.return_value)
                   ])),
@@ -481,6 +485,7 @@ class PipelineStateTest(test_utils.TfxTest):
                   state_history=[
                       pstate.StateRecord(
                           state=pstate.NodeState.STARTED,
+                          backfill_token='',
                           status_code=None,
                           update_time=mock_time.time.return_value)
                   ]),
@@ -491,10 +496,12 @@ class PipelineStateTest(test_utils.TfxTest):
                   state_history=[
                       pstate.StateRecord(
                           state=pstate.NodeState.STARTED,
+                          backfill_token='',
                           status_code=None,
                           update_time=mock_time.time.return_value),
                       pstate.StateRecord(
                           state=pstate.NodeState.STARTING,
+                          backfill_token='',
                           status_code=None,
                           update_time=mock_time.time.return_value)
                   ])),
@@ -510,10 +517,12 @@ class PipelineStateTest(test_utils.TfxTest):
                   state_history=[
                       pstate.StateRecord(
                           state=pstate.NodeState.STARTED,
+                          backfill_token='',
                           status_code=None,
                           update_time=mock_time.time.return_value),
                       pstate.StateRecord(
                           state=pstate.NodeState.STARTING,
+                          backfill_token='',
                           status_code=None,
                           update_time=mock_time.time.return_value)
                   ]),
@@ -522,14 +531,17 @@ class PipelineStateTest(test_utils.TfxTest):
                   state_history=[
                       pstate.StateRecord(
                           state=pstate.NodeState.STARTED,
+                          backfill_token='',
                           status_code=None,
                           update_time=mock_time.time.return_value),
                       pstate.StateRecord(
                           state=pstate.NodeState.STARTING,
+                          backfill_token='',
                           status_code=None,
                           update_time=mock_time.time.return_value),
                       pstate.StateRecord(
                           state=pstate.NodeState.STOPPING,
+                          backfill_token='',
                           status_code=status_lib.Code.ABORTED,
                           update_time=mock_time.time.return_value)
                   ])),
@@ -578,6 +590,7 @@ class PipelineStateTest(test_utils.TfxTest):
                         state_history=[
                             pstate.StateRecord(
                                 state=pstate.NodeState.STARTED,
+                                backfill_token='',
                                 status_code=None,
                                 update_time=mock_time.time.return_value)
                         ]),
@@ -586,6 +599,7 @@ class PipelineStateTest(test_utils.TfxTest):
                         state=pstate.NodeState.RUNNING,
                         state_history=[
                             pstate.StateRecord(
+                                backfill_token='',
                                 state=pstate.NodeState.STARTED,
                                 status_code=None,
                                 update_time=mock_time.time.return_value)
@@ -596,6 +610,7 @@ class PipelineStateTest(test_utils.TfxTest):
                         state_history=[
                             pstate.StateRecord(
                                 state=pstate.NodeState.STARTED,
+                                backfill_token='',
                                 status_code=None,
                                 update_time=mock_time.time.return_value)
                         ]),
@@ -888,6 +903,7 @@ class PipelineStateTest(test_utils.TfxTest):
                         state_history=[
                             pstate.StateRecord(
                                 state=pstate.NodeState.STARTED,
+                                backfill_token='',
                                 status_code=None,
                                 update_time=mock_time.time.return_value)
                         ]),
@@ -897,6 +913,7 @@ class PipelineStateTest(test_utils.TfxTest):
                         state_history=[
                             pstate.StateRecord(
                                 state=pstate.NodeState.STARTED,
+                                backfill_token='',
                                 status_code=None,
                                 update_time=mock_time.time.return_value)
                         ]),
